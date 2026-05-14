@@ -33,6 +33,7 @@ from memanto.app.utils.errors import (
     SessionExpiredError,
     SessionNotFoundError,
 )
+from memanto.app.utils.validation import InputLimits
 from memanto.cli.config.manager import ConfigManager
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ __all__ = ["SdkClient"]
 # Constants
 _MAX_BATCH_SIZE = 100
 _MAX_TITLE_LENGTH = 100
-_MAX_CONTENT_LENGTH = 500
+_MAX_CONTENT_LENGTH = InputLimits.MAX_TEXT_LENGTH
 
 
 class SdkClient:
@@ -404,7 +405,7 @@ class SdkClient:
             memory_type: One of ``fact``, ``decision``, ``instruction``,
                 ``commitment``, ``event``.
             title: Memory title (max 100 chars).
-            content: Memory content (max 500 chars).
+            content: Memory content (max ``InputLimits.MAX_TEXT_LENGTH`` chars).
             confidence: Confidence score 0.0–1.0 (default 0.8).
             tags: Optional list of tags.
             source: Memory source (default ``"user"``).
