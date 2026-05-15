@@ -26,7 +26,6 @@ This animation shows the complete cross-session memory flow:
 - **Cross-session persistence**: Run the researcher today, the writer tomorrow — memories persist
 - **Typed semantic memory**: 13 memory types (fact, observation, decision, etc.) with confidence scoring
 - **Stateful pipelines**: LangGraph checkpoints preserve conversation state across turns
-- **Contradictory memory handling**: Detect and resolve conflicting facts (bonus)
 
 ## Prerequisites
 
@@ -52,9 +51,6 @@ python run_research.py
 
 # Step 2: Writer Agent retrieves those memories in a NEW session
 python run_writer.py
-
-# Step 3 (Bonus): Demonstrate contradictory memory handling
-python run_contradiction.py
 ```
 
 ## File Structure
@@ -72,8 +68,7 @@ examples/langgraph-memory/
 │   └── graph.py               # Graph definition + compilation
 ├── run_research.py             # Run 1: Research Agent stores findings
 ├── run_writer.py               # Run 2: Writer Agent recalls memories
-├── run_full_pipeline.py        # Full pipeline in one run
-└── run_contradiction.py       # Bonus: contradictory memory handling
+└── run_full_pipeline.py        # Full pipeline in one run
 ```
 
 ## How It Works
