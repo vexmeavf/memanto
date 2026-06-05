@@ -1658,8 +1658,207 @@
             color: var(--text-dim);
             font-weight: 400;
         }
+
+        .hh-summary-panel {
+            position: sticky;
+            top: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            max-height: 75vh;
+            overflow: hidden;
+        }
+
+        .hh-summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-card);
+        }
+
+        .hh-summary-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 6px;
+            border-radius: 4px;
+        }
+
+        .hh-summary-close:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .hh-summary-action {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            line-height: 1;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+        }
+
+        .hh-summary-action:hover:not(:disabled) {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .hh-summary-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .hh-summary-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 14px;
+        }
+
+        .hh-summary-content {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }
+
+        .hh-summary-md {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            word-wrap: break-word;
+        }
+
+        .hh-summary-md h1,
+        .hh-summary-md h2,
+        .hh-summary-md h3,
+        .hh-summary-md h4 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin: 16px 0 8px;
+            line-height: 1.3;
+        }
+
+        .hh-summary-md h1 { font-size: 16px; }
+        .hh-summary-md h2 { font-size: 14px; color: var(--accent); }
+        .hh-summary-md h3 { font-size: 13px; }
+        .hh-summary-md h4 { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
+
+        .hh-summary-md p {
+            margin: 0 0 10px;
+        }
+
+        .hh-summary-md ul,
+        .hh-summary-md ol {
+            margin: 0 0 10px;
+            padding-left: 20px;
+        }
+
+        .hh-summary-md li {
+            margin-bottom: 4px;
+        }
+
+        .hh-summary-md strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .hh-summary-md em {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .hh-summary-md a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .hh-summary-md a:hover {
+            text-decoration: underline;
+        }
+
+        .hh-summary-md hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0;
+        }
+
+        .hh-summary-md code {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            background: var(--bg-card);
+            color: var(--accent);
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        .hh-summary-md pre {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            padding: 10px 12px;
+            overflow-x: auto;
+            margin: 0 0 12px;
+        }
+
+        .hh-summary-md pre code {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 0;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .hh-summary-md blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 4px 12px;
+            margin: 0 0 10px;
+            color: var(--text-dim);
+            background: var(--bg-card);
+        }
+
+        .hh-summary-md table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 0 12px;
+            font-size: 12px;
+        }
+
+        .hh-summary-md th,
+        .hh-summary-md td {
+            border: 1px solid var(--border);
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .hh-summary-md th {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
 </head>
 
 <body>
@@ -2334,7 +2533,14 @@
         ${isOnPrem()
             ? `<div class="card"><div class="card-label">Backend</div><div class="card-value" style="font-size:14px"><span style="color:var(--success)">On-Prem</span></div><div class="card-sub">${escHtml(S.config?.on_prem?.url || 'http://localhost:8080')}</div></div>`
             : `<div class="card"><div class="card-label">API Key</div><div class="card-value" style="font-size:14px">${S.config?.api_key_configured ? '<span style="color:var(--success)">✓ Configured</span>' : '<span style="color:var(--error)">✗ Missing</span>'}</div><div class="card-sub">${S.config?.api_key_preview || ''}</div></div>`}
+        <div class="card" id="cardTodaySummary" style="cursor:pointer" onclick="openHistoryForToday()" title="View or generate today's summary">
+            <div class="card-label">Today's Summary</div>
+            <div class="card-value" style="font-size:14px;color:var(--text-dim)">…</div>
+            <div class="card-sub">checking…</div>
+        </div>
     `;
+            // Async probe — show whether today's summary already exists
+            if (S.agentId) refreshTodaySummaryCard();
 
             if (S.agentId) {
                 try {
@@ -2371,6 +2577,56 @@
             } else {
                 session.innerHTML = '<p style="color:var(--text-dim)">No active session</p>';
             }
+        }
+
+        // ----------------------------------------------------------------
+        // Today's-summary card (dashboard) + cross-page navigation helper
+        // ----------------------------------------------------------------
+        function todayKey() {
+            const d = new Date();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${d.getFullYear()}-${m}-${day}`;
+        }
+
+        async function refreshTodaySummaryCard() {
+            const card = document.getElementById('cardTodaySummary');
+            if (!card) return;
+            const valueEl = card.querySelector('.card-value');
+            const subEl = card.querySelector('.card-sub');
+            try {
+                const res = await api('GET', `/api/ui/daily-summary?date=${todayKey()}`);
+                if (res.exists) {
+                    valueEl.style.color = 'var(--success)';
+                    valueEl.style.fontSize = '14px';
+                    valueEl.innerHTML = '<span style="color:var(--success)">✓ Available</span>';
+                    subEl.textContent = "Click to view today's summary";
+                } else {
+                    valueEl.style.color = 'var(--accent)';
+                    valueEl.style.fontSize = '14px';
+                    valueEl.innerHTML = '<span style="color:var(--accent)">Generate</span>';
+                    subEl.textContent = "No summary yet — click to create";
+                }
+            } catch (e) {
+                valueEl.textContent = '—';
+                subEl.textContent = 'Unavailable';
+            }
+        }
+
+        async function openHistoryForToday() {
+            openHistoryForDay(todayKey());
+        }
+
+        async function openHistoryForDay(key) {
+            S.historyFilter = key;
+            S.summaryOpen = true;
+            const wasLoaded = !!S._historyLoaded;
+            goToPage('history');
+            // If history is already loaded, re-render now so the summary
+            // tab appears immediately (the nav handler doesn't reload).
+            // Otherwise the in-flight loadHistory() will renderHistory()
+            // for us — it now preserves the filter/summaryOpen state.
+            if (wasLoaded) renderHistory();
         }
 
         // ================================================================
@@ -2644,7 +2900,8 @@
             try {
                 const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, { limit: 100 });
                 S.history = res.memories || [];
-                S.historyFilter = null;
+                // Preserve any pre-set filter/summary state (e.g. dashboard
+                // navigated here with a specific day pre-selected).
                 renderHistory();
             } catch (e) {
                 box.innerHTML = `<p style="color:var(--error);padding:20px">Error: ${e.message}</p>`;
@@ -2744,17 +3001,147 @@
                 </div>
             </div>`;
 
+            const showSummaryPane = !!(S.historyFilter && S.summaryOpen);
+            const timelineInner = total === 0
+                ? '<div class="hh-empty">No memories yet. Store one from the Playground to see it here.</div>'
+                : `<div class="hh-timeline">${buildHistoryTimeline(byDay)}</div>`;
+
             html += `<div class="panel">
                 <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
                     <span>Timeline${S.historyFilter ? ` — ${S.historyFilter}` : ''}</span>
                     ${S.historyFilter ? `<button class="btn btn-secondary btn-sm" onclick="clearHistoryFilter()">Clear filter</button>` : ''}
                 </div>
-                ${total === 0
-                    ? '<div class="hh-empty">No memories yet. Store one from the Playground to see it here.</div>'
-                    : `<div class="hh-timeline">${buildHistoryTimeline(byDay)}</div>`}
+                ${showSummaryPane
+                    ? `<div style="display:flex;gap:16px;align-items:flex-start">
+                        <div style="flex:0 0 calc(60% - 8px);min-width:0">${timelineInner}</div>
+                        <div style="flex:0 0 calc(40% - 8px);min-width:0" id="historySummaryPane">
+                            <div class="hh-summary-panel">
+                                <div class="hh-summary-header">
+                                    <span>Summary — ${S.historyFilter}</span>
+                                    <div style="display:flex;align-items:center;gap:6px">
+                                        <button class="hh-summary-action" id="btnRegenSummary" onclick="regenerateDaySummary('${S.historyFilter}')" title="Regenerate from latest sessions" style="display:none">↻ Regenerate</button>
+                                        <button class="hh-summary-close" onclick="closeHistorySummary()" title="Close">×</button>
+                                    </div>
+                                </div>
+                                <div class="hh-summary-body" id="historySummaryBody">
+                                    <div class="loading-overlay"><span class="spinner"></span> Loading summary…</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+                    : timelineInner}
             </div>`;
 
             box.innerHTML = html;
+
+            if (showSummaryPane) loadDaySummaryPanel(S.historyFilter);
+        }
+
+        function closeHistorySummary() {
+            S.summaryOpen = false;
+            renderHistory();
+        }
+
+        async function loadDaySummaryPanel(key) {
+            const body = document.getElementById('historySummaryBody');
+            if (!body) return;
+            body.innerHTML = '<div class="loading-overlay"><span class="spinner"></span> Loading summary…</div>';
+            try {
+                const res = await api('GET', `/api/ui/daily-summary?date=${encodeURIComponent(key)}`);
+                renderDaySummaryPanel(key, res);
+            } catch (e) {
+                body.innerHTML = `<p style="color:var(--error);padding:12px;font-size:13px">Failed to load: ${escHtml(e.message)}</p>`;
+            }
+        }
+
+        function renderMarkdownSafe(src) {
+            const raw = src || '';
+            // Fall back to escaped <pre> if either CDN library failed to load.
+            if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+                return `<pre class="hh-summary-content">${escHtml(raw)}</pre>`;
+            }
+            try {
+                const html = marked.parse(raw, { gfm: true, breaks: false });
+                return `<div class="hh-summary-md">${DOMPurify.sanitize(html)}</div>`;
+            } catch (e) {
+                return `<pre class="hh-summary-content">${escHtml(raw)}</pre>`;
+            }
+        }
+
+        function renderDaySummaryPanel(key, res) {
+            const body = document.getElementById('historySummaryBody');
+            if (!body) return;
+            const regenBtn = document.getElementById('btnRegenSummary');
+            if (res && res.exists) {
+                body.innerHTML = renderMarkdownSafe(res.content);
+                if (regenBtn) regenBtn.style.display = '';
+            } else {
+                body.innerHTML = `
+                    <div style="padding:24px 12px;text-align:center;color:var(--text-dim)">
+                        <div style="font-size:36px;margin-bottom:12px;opacity:0.4">📝</div>
+                        <p style="font-size:13px;margin-bottom:16px">No summary for <strong style="color:var(--text-secondary)">${escHtml(key)}</strong> yet.</p>
+                        <button class="btn btn-primary btn-sm" id="btnGenSummary" onclick="generateDaySummary('${escHtml(key)}')">⚡ Generate Summary</button>
+                    </div>`;
+                if (regenBtn) regenBtn.style.display = 'none';
+            }
+        }
+
+        async function regenerateDaySummary(key) {
+            const btn = document.getElementById('btnRegenSummary');
+            const prev = btn ? btn.innerHTML : null;
+            if (btn) { btn.disabled = true; btn.innerHTML = '↻ …'; }
+            const body = document.getElementById('historySummaryBody');
+            if (body) body.innerHTML = '<div class="loading-overlay"><span class="spinner"></span> Regenerating…</div>';
+            try {
+                const res = await api('POST', '/api/ui/daily-summary', { date: key });
+                const status = (res.summary && res.summary.status) || 'unknown';
+                if (status === 'success') {
+                    toast('Summary regenerated.');
+                    loadDaySummaryPanel(key);
+                    if (key === todayKey()) refreshTodaySummaryCard();
+                } else if (status === 'no_sessions') {
+                    toast('No sessions found on that day.', 'warning');
+                    loadDaySummaryPanel(key);
+                } else if (status === 'skipped_on_prem') {
+                    toast('Daily summary is cloud-only — switch backend with: memanto config backend cloud', 'error');
+                    loadDaySummaryPanel(key);
+                } else {
+                    toast(`Regeneration finished with status: ${status}`, 'warning');
+                    loadDaySummaryPanel(key);
+                }
+            } catch (e) {
+                toast('Failed: ' + e.message, 'error');
+                loadDaySummaryPanel(key);
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = prev; }
+            }
+        }
+
+        async function generateDaySummary(key) {
+            const btn = document.getElementById('btnGenSummary');
+            const prev = btn ? btn.innerHTML : null;
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating…'; }
+            try {
+                const res = await api('POST', '/api/ui/daily-summary', { date: key });
+                const status = (res.summary && res.summary.status) || 'unknown';
+                if (status === 'success') {
+                    toast('Daily summary generated.');
+                    loadDaySummaryPanel(key);
+                    if (key === todayKey()) refreshTodaySummaryCard();
+                } else if (status === 'no_sessions') {
+                    toast('No sessions found on that day.', 'warning');
+                    if (btn) { btn.disabled = false; btn.innerHTML = prev; }
+                } else if (status === 'skipped_on_prem') {
+                    toast('Daily summary is cloud-only — switch backend with: memanto config backend cloud', 'error');
+                    if (btn) { btn.disabled = false; btn.innerHTML = prev; }
+                } else {
+                    toast(`Summary finished with status: ${status}`, 'warning');
+                    if (btn) { btn.disabled = false; btn.innerHTML = prev; }
+                }
+            } catch (e) {
+                toast('Failed: ' + e.message, 'error');
+                if (btn) { btn.disabled = false; btn.innerHTML = prev; }
+            }
         }
 
         function buildHistoryTimeline(byDay) {
@@ -2805,12 +3192,20 @@
         }
 
         function filterHistoryByDay(key) {
-            S.historyFilter = (S.historyFilter === key) ? null : key;
+            if (S.historyFilter === key) {
+                // Re-clicking the same day clears the filter and closes the tab.
+                S.historyFilter = null;
+                S.summaryOpen = false;
+            } else {
+                S.historyFilter = key;
+                S.summaryOpen = true;
+            }
             renderHistory();
         }
 
         function clearHistoryFilter() {
             S.historyFilter = null;
+            S.summaryOpen = false;
             renderHistory();
         }
 

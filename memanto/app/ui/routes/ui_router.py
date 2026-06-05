@@ -187,6 +187,47 @@ async def list_conflicts(agent_id: str | None = None, date: str | None = None):
         return {"conflicts": [], "count": 0, "error": str(e)}
 
 
+@router.get("/api/ui/daily-summary")
+async def read_daily_summary(agent_id: str | None = None, date: str | None = None):
+    """
+    Return the existing daily summary for an agent/date if one was already
+    generated. Does NOT trigger generation — that's the POST endpoint.
+
+    Response: {exists, agent_id, date, path, content}
+    """
+    from datetime import datetime as dt
+
+    from memanto.app.config import get_data_dir
+
+    if not agent_id:
+        aid, _ = _config_manager.get_active_session()
+        if not aid:
+            return {"exists": False, "message": "No active agent"}
+        agent_id = aid
+    if not date:
+        date = dt.now().strftime("%Y-%m-%d")
+
+    path = get_data_dir() / "summaries" / f"{agent_id}_{date}.md"
+    if not path.exists():
+        return {
+            "exists": False,
+            "agent_id": agent_id,
+            "date": date,
+            "path": str(path),
+        }
+    try:
+        content = path.read_text(encoding="utf-8")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read summary: {e}")
+    return {
+        "exists": True,
+        "agent_id": agent_id,
+        "date": date,
+        "path": str(path),
+        "content": content,
+    }
+
+
 @router.post("/api/ui/daily-summary")
 async def generate_daily_summary(body: dict | None = None):
     """
