@@ -29,41 +29,41 @@ Run with:
 from __future__ import annotations
 
 import os
-import json
-from typing import Annotated, Any, Literal, Optional
+from typing import Annotated, Any
 
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_core.tools import tool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from typing_extensions import TypedDict
 
-from memanto_memory import (
+from .memanto_memory import (
     MemantoMemory,
     build_memory_context,
 )
+
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
 
+
 class AgentState(TypedDict):
     """The LangGraph state for our customer-support agent."""
+
     messages: Annotated[list, add_messages]
     user_id: str
     session_id: str
     memories_recalled: bool  # whether we've already recalled memories this session
-    memories_stored: bool    # whether we've stored memories this session
+    memories_stored: bool  # whether we've stored memories this session
 
 
 # ---------------------------------------------------------------------------
 # LLM setup  (provider-agnostic — swap in your preferred client)
 # ---------------------------------------------------------------------------
+
 
 def _get_llm():
     """Return an LLM instance.
@@ -71,7 +71,7 @@ def _get_llm():
     Respects the LLM_MODEL env var.  Falls back to a simple HTTP wrapper
     so the example works without langchain LLM packages.
     """
-    model = os.getenv("LLM_MODEL", "openrouter/google/gemini-2.0-flash-001")
+    model = os.getenv("LLM_MODEL", "openrouter/openai/gpt-4o-mini")
     provider, _, model_name = model.partition("/")
 
     # ---- OpenRouter (default) ----
@@ -91,7 +91,7 @@ def _get_llm():
 class _OpenRouterLLM:
     """Minimal LLM wrapper using OpenRouter's chat completions API."""
 
-    def __init__(self, model: str = "google/gemini-2.0-flash-001"):
+    def __init__(self, model: str = "openai/gpt-4o-mini"):
         self.model = model
         self.api_key = os.getenv("OPENROUTER_API_KEY", "")
 
@@ -151,10 +151,12 @@ class _AnthropicLLM:
             if m["role"] == "system":
                 system_msg = m["content"]
             else:
-                anthropic_messages.append({
-                    "role": "assistant" if m["role"] == "assistant" else "user",
-                    "content": m["content"],
-                })
+                anthropic_messages.append(
+                    {
+                        "role": "assistant" if m["role"] == "assistant" else "user",
+                        "content": m["content"],
+                    }
+                )
 
         payload: dict[str, Any] = {
             "model": self.model,
@@ -182,6 +184,7 @@ class _AnthropicLLM:
 # Memanto initialisation
 # ---------------------------------------------------------------------------
 
+
 def get_memory() -> MemantoMemory:
     """Create a MemantoMemory instance (uses env vars)."""
     memory = MemantoMemory(agent_name="langgraph-customer-support")
@@ -192,6 +195,7 @@ def get_memory() -> MemantoMemory:
 # ---------------------------------------------------------------------------
 # Graph nodes
 # ---------------------------------------------------------------------------
+
 
 def recall_memory_node(state: AgentState, memory: MemantoMemory) -> dict:
     """Recall relevant memories from previous sessions and inject them as context."""
@@ -236,7 +240,8 @@ def agent_node(state: AgentState, llm, memory: MemantoMemory) -> dict:
     messages_for_llm = [{"role": "system", "content": system_prompt}]
     for msg in state["messages"]:
         if hasattr(msg, "type") and msg.type == "system":
-            # Skip system messages from memory (they're injected context)
+            # Forward injected recall context to the model
+            messages_for_llm.append({"role": "system", "content": str(msg.content)})
             continue
         role = "user" if getattr(msg, "type", "") == "human" else "assistant"
         messages_for_llm.append({"role": role, "content": str(msg.content)})
@@ -261,17 +266,33 @@ def remember_memory_node(state: AgentState, memory: MemantoMemory) -> dict:
             content = str(msg.content)
 
             # Detect and store preferences
-            if any(kw in content.lower() for kw in
-                   ["prefer", "like", "love", "hate", "don't like",
-                    "my name is", "i am ", "i'm ", "my email",
-                    "contact me", "issue", "problem", "bug"]):
+            if any(
+                kw in content.lower()
+                for kw in [
+                    "prefer",
+                    "like",
+                    "love",
+                    "hate",
+                    "don't like",
+                    "my name is",
+                    "i am ",
+                    "i'm ",
+                    "my email",
+                    "contact me",
+                    "issue",
+                    "problem",
+                    "bug",
+                ]
+            ):
                 memories_stored_this_cycle.append(
                     (content[:500], "preference", {"source": "langgraph-agent"})
                 )
 
             # Detect explicit facts
-            if any(kw in content.lower() for kw in
-                   ["fact:", "remember that", "note that", "important:"]):
+            if any(
+                kw in content.lower()
+                for kw in ["fact:", "remember that", "note that", "important:"]
+            ):
                 memories_stored_this_cycle.append(
                     (content[:500], "fact", {"source": "langgraph-agent"})
                 )
@@ -280,8 +301,11 @@ def remember_memory_node(state: AgentState, memory: MemantoMemory) -> dict:
     for msg in reversed(state["messages"]):
         if hasattr(msg, "type") and msg.type == "ai" and msg.content:
             memories_stored_this_cycle.append(
-                (f"Agent helped with: {msg.content[:300]}",
-                 "learning", {"source": "langgraph-agent"})
+                (
+                    f"Agent helped with: {msg.content[:300]}",
+                    "learning",
+                    {"source": "langgraph-agent"},
+                )
             )
             break
 
@@ -294,6 +318,7 @@ def remember_memory_node(state: AgentState, memory: MemantoMemory) -> dict:
 # ---------------------------------------------------------------------------
 # Graph construction
 # ---------------------------------------------------------------------------
+
 
 def build_agent() -> tuple:
     """Build the compiled LangGraph + Memanto agent.
@@ -308,12 +333,9 @@ def build_agent() -> tuple:
     workflow = StateGraph(AgentState)
 
     # Add nodes
-    workflow.add_node("recall_memory",
-                       lambda s: recall_memory_node(s, memory))
-    workflow.add_node("agent",
-                       lambda s: agent_node(s, llm, memory))
-    workflow.add_node("remember_memory",
-                       lambda s: remember_memory_node(s, memory))
+    workflow.add_node("recall_memory", lambda s: recall_memory_node(s, memory))
+    workflow.add_node("agent", lambda s: agent_node(s, llm, memory))
+    workflow.add_node("remember_memory", lambda s: remember_memory_node(s, memory))
 
     # Flow: START → recall_memory → agent → remember_memory → END
     workflow.add_edge("recall_memory", "agent")
@@ -331,6 +353,7 @@ def build_agent() -> tuple:
 # ---------------------------------------------------------------------------
 # Convenience
 # ---------------------------------------------------------------------------
+
 
 def run_session(
     user_id: str,

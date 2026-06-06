@@ -47,7 +47,7 @@ def check_env():
 
 def session_1():
     """Session 1: User shares preferences and info."""
-    from langgraph_agent import run_session
+    from .langgraph_agent import run_session
 
     print("=" * 70)
     print("📝 SESSION 1: User shares preferences")
@@ -64,8 +64,7 @@ def session_1():
             ),
             (
                 "human",
-                "I also love dark mode for all my tools. "
-                "My timezone is PST.",
+                "I also love dark mode for all my tools. My timezone is PST.",
             ),
             (
                 "human",
@@ -87,7 +86,7 @@ def session_1():
 
 def session_2():
     """Session 2: User returns — agent should recall stored memories."""
-    from langgraph_agent import run_session
+    from .langgraph_agent import run_session
 
     print("=" * 70)
     print("🔄 SESSION 2: User returns (NEW session, no context)")
@@ -101,8 +100,7 @@ def session_2():
         messages=[
             (
                 "human",
-                "Hey, I'm back! Still having that redirect issue. "
-                "Any updates?",
+                "Hey, I'm back! Still having that redirect issue. Any updates?",
             ),
         ],
         thread_id="alice-session-002",
