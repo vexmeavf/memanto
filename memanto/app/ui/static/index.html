@@ -2945,7 +2945,7 @@
         async function fetchRecentMemories() {
             if (!S.agentId || !S.token) return;
             try {
-                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, { limit: 100 });
+                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, {});
                 S.history = res.memories || [];
             } catch { }
         }
@@ -2958,7 +2958,7 @@
             }
             box.innerHTML = '<div class="loading-overlay"><span class="spinner"></span> Loading history...</div>';
             try {
-                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, { limit: 100 });
+                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, {});
                 S.history = res.memories || [];
                 await fetchConflictScans();
                 // Preserve any pre-set filter/summary state (e.g. dashboard
@@ -3042,7 +3042,7 @@
 
             html += `<div class="panel">
                 <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-                    <span>${headlineCount} ${headlineCount === 1 ? 'memory' : 'memories'} in the last year <span class="hh-cap-note">(showing latest ${total} fetched; API capped at 100)</span></span>
+                    <span>${headlineCount} ${headlineCount === 1 ? 'memory' : 'memories'} in the last year</span>
                 </div>
                 <div class="hh-container">
                     <div class="hh-months"><span></span>${monthLabels.map(l => `<span>${l}</span>`).join('')}</div>
@@ -3674,7 +3674,7 @@
             cards.innerHTML = '<div class="loading-overlay"><span class="spinner"></span> Loading analytics...</div>';
 
             try {
-                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, { limit: 100 });
+                const res = await api('POST', `/api/v2/agents/${S.agentId}/recall/recent`, {});
                 const mems = res.memories || [];
 
                 const typeCounts = {};
