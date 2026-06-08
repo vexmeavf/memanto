@@ -79,6 +79,7 @@ def schedule_run_internal(
         date = datetime.now().strftime("%Y-%m-%d")
 
     client = get_client()
+    failed = False
 
     try:
         summary_result = client.generate_daily_summary(agent_id=agent_id, date=date)
@@ -88,8 +89,10 @@ def schedule_run_internal(
                 f"[green]Daily summary generated:[/green] {summary.get('summary_path')}"
             )
         else:
+            failed = True
             console.print(f"[yellow]! Summary:[/yellow] {summary.get('status')}")
     except Exception as e:
+        failed = True
         console.print(f"[red]Daily summary failed: {e}[/red]")
 
     try:
@@ -102,11 +105,16 @@ def schedule_run_internal(
                 f"{conflicts.get('json_path')} ({count} conflict(s))"
             )
         else:
+            failed = True
             console.print(f"[yellow]! Conflicts:[/yellow] {conflicts.get('status')}")
     except Exception as e:
+        failed = True
         console.print(f"[red]Conflict detection failed: {e}[/red]")
 
     console.print(f"\n[dim]Completed in {time.perf_counter() - start:.2f}s[/dim]")
+
+    if failed:
+        raise typer.Exit(code=1)
 
 
 @schedule_app.command("status")

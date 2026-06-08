@@ -16,21 +16,53 @@ class ScheduleManager:
     """Manages OS-level scheduled tasks for MEMANTO."""
 
     TASK_NAME = "MemantoNightlyJob"
+    LEGACY_TASK_NAMES = ("MemantoDailySummary",)
 
     def __init__(self):
         self.os_type = platform.system()
         self.cli_main = Path(__file__).parent / "main.py"
         self.python_exe = sys.executable
 
+    def _remove_legacy_tasks(self) -> None:
+        """Best-effort removal of older task identities so upgrades don't
+        leave duplicate nightly jobs running alongside the current one."""
+        if self.os_type == "Windows":
+            for name in self.LEGACY_TASK_NAMES:
+                subprocess.run(
+                    ["schtasks", "/delete", "/tn", name, "/f"],
+                    capture_output=True,
+                    text=True,
+                )
+        else:
+            try:
+                current_cron = subprocess.run(
+                    ["crontab", "-l"], capture_output=True, text=True
+                ).stdout
+                legacy_markers = [f"# {name}" for name in self.LEGACY_TASK_NAMES]
+                lines = [
+                    line
+                    for line in current_cron.splitlines()
+                    if not any(m in line for m in legacy_markers)
+                ]
+                if len(lines) != len(current_cron.splitlines()):
+                    new_cron = "\n".join(lines).rstrip() + "\n"
+                    subprocess.run(
+                        ["crontab", "-"], input=new_cron, text=True, check=False
+                    )
+            except Exception:
+                pass
+
     def _command(self) -> str:
         return f'"{self.python_exe}" "{self.cli_main.absolute()}" schedule _run'
 
     def enable(self, time_str: str = "23:55") -> dict[str, Any]:
+        self._remove_legacy_tasks()
         if self.os_type == "Windows":
             return self._enable_windows(time_str)
         return self._enable_unix(time_str)
 
     def disable(self) -> dict[str, Any]:
+        self._remove_legacy_tasks()
         if self.os_type == "Windows":
             return self._disable_windows()
         return self._disable_unix()
