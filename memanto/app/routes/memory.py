@@ -28,7 +28,7 @@ from memanto.app.models.session import Session
 from memanto.app.routes.auth_deps import get_current_session, get_session_service
 from memanto.app.services.memory_read_service import MemoryReadService
 from memanto.app.services.memory_write_service import MemoryWriteService
-from memanto.app.utils.errors import map_error_to_http_exception
+from memanto.app.utils.errors import AuthorizationError, map_error_to_http_exception
 from memanto.app.utils.validation import CostGuard
 from memanto.cli.client.direct_client import DirectClient
 from memanto.cli.config.manager import ConfigManager
@@ -369,6 +369,55 @@ async def upload_file(
             "message": result.get("message", ""),
         }
 
+    except Exception as e:
+        raise map_error_to_http_exception(e)
+
+
+@router.delete("/{agent_id}/memories/{memory_id}")
+async def delete_memory(
+    agent_id: str,
+    memory_id: str,
+    session: Session = Depends(get_current_session),
+    client=Depends(get_moorcheh_client),
+):
+    """
+    Delete one memory from the active agent namespace.
+
+    Requires:
+    - X-Session-Token: {session_token}
+
+    The session must be for the specified agent_id.
+    """
+    if session.agent_id != agent_id:
+        raise map_error_to_http_exception(
+            AuthorizationError(
+                f"Session is for agent '{session.agent_id}', cannot access '{agent_id}'"
+            )
+        )
+
+    try:
+        write_service = MemoryWriteService(client)
+        deleted = await asyncio.to_thread(
+            write_service.delete_memory,
+            memory_id,
+            session.namespace,
+        )
+
+        if not deleted:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Memory '{memory_id}' was not found for agent '{agent_id}'",
+            )
+
+        return {
+            "agent_id": agent_id,
+            "memory_id": memory_id,
+            "namespace": session.namespace,
+            "status": "deleted",
+        }
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise map_error_to_http_exception(e)
 
